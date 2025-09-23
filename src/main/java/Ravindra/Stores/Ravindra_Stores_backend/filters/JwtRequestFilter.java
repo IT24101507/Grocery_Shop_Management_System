@@ -16,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import Ravindra.Stores.Ravindra_Stores_backend.services.MyUserDetailsService;
 import Ravindra.Stores.Ravindra_Stores_backend.util.JwtUtil;
-
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -50,7 +49,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.myUserDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
-                // --- THIS IS THE KEY LOGIC ---
+                
                 // 1. Extract all claims from the token
                 Claims claims = jwtUtil.extractAllClaims(jwt);
                 // 2. Get the roles claim, which is a List of Strings
