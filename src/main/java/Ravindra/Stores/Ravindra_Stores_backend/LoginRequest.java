@@ -2,19 +2,30 @@ package Ravindra.Stores.Ravindra_Stores_backend;
 
 public class LoginRequest {
     
-        private String username;
+    private String gmail;
     private String password;
 
-    public String getUsername(){
-        return username;
+    public LoginRequest() {
     }
 
-    public void setUsername(String username){
-        this.username = username;
+    public LoginRequest(String gmail, String password) {
+        this.gmail = gmail;
+        this.password = password;
     }
 
-    public String getPassword(){
+    public String getGmail() {
+        return gmail;
+    }
+
+    public void setGmail(String gmail) {
+        this.gmail = gmail;
+    }
+
+    public String getPassword() {
         return password;
     }
-    
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

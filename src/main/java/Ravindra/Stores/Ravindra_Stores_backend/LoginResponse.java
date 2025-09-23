@@ -2,11 +2,15 @@ package Ravindra.Stores.Ravindra_Stores_backend;
 
 public class LoginResponse {
         private String username;
-    private String role;
+        private String role;
+        private String jwt;
+        private String picture;
 
-    public LoginResponse(String username, String role) {
+    public LoginResponse(String username, String role, String jwt, String picture) {
         this.username = username;
         this.role = role;
+        this.jwt = jwt;
+        this.picture = picture;
     }
 
     
@@ -22,7 +26,11 @@ public class LoginResponse {
         this.username = username;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public String getJwt() {
+        return jwt;
+    }
+
+    public String getPicture() {
+        return picture;
     }
 }
