@@ -24,11 +24,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (productRepository.count() == 0) {
             List<Product> products = Arrays.asList(
-                createProduct(1L, "Fresh Milk (1L)", "/images/milk.jpg", new BigDecimal("2.50"), null, 100),
-                createProduct(2L, "Brown Bread", "/images/bread.jpg", new BigDecimal("3.00"), new BigDecimal("2.75"), 50),
-                createProduct(3L, "Organic Eggs (12 pack)", "/images/eggs.jpg", new BigDecimal("4.00"), null, 75),
-                createProduct(4L, "Cheddar Cheese (200g)", "/images/cheese.jpg", new BigDecimal("5.50"), null, 40),
-                createProduct(5L, "Fuji Apples (1kg)", "/images/apples.jpg", new BigDecimal("4.20"), null, 0) // Out of stock item
+                createProduct(1L, "Fresh Carrots (500g)", "/images/carrots.jpg", new BigDecimal("600"), null, 100),
+                createProduct(2L, "Apple", "/images/red-apple.jpg", new BigDecimal("600"), new BigDecimal("500"), 50),
+                createProduct(3L, "Pineapple", "/images/pineapple.jpg", new BigDecimal("400"), null, 75),
+                createProduct(4L, "Pet Food", "/images/pet-food.jpg", new BigDecimal("550"), null, 40),
+                createProduct(5L, "Cheese", "/images/cheese.jpg", new BigDecimal("420"), null, 2)
             );
             productRepository.saveAll(products);
             System.out.println("--- Mock products have been loaded into the database. ---");
