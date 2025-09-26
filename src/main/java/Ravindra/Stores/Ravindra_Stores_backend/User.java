@@ -19,6 +19,7 @@ public class User {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
+    private String fname;
     private String username;
     private String gmail;
     private String password;
@@ -37,7 +38,8 @@ public class User {
 
     public User(){}
 
-    public User(String username, String gmail, String password, String role, String telephone, String Address){
+    public User(String fname, String username, String gmail, String password, String role, String telephone, String Address){
+        this.fname = fname;
         this.username = username;
         this.gmail = gmail;
         this.password = password;
@@ -48,6 +50,14 @@ public class User {
 
     public long getId(){
         return id;
+    }
+
+    public String getFname(){
+        return fname;
+    }
+
+    public void setFname(String Fname){
+        this.fname = fname;
     }
 
     public String getUsername(){
@@ -134,6 +144,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", fname='" + fname + "'" +
                 ", username='" + username + "'" +
                 ", gmail='" + gmail + "'" +
                 ", password='" + password + "'" +
