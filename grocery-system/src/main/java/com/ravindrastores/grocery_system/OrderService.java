@@ -35,7 +35,7 @@ public class OrderService {
         double totalPrice = 0;
         List<OrderItem> orderItems = new ArrayList<>();
 
-        // ✅ Use regular for-loop instead of lambda
+    
         for (CartItem cartItem : cartItems) {
             OrderItem item = new OrderItem();
             item.setProductId(cartItem.getProductId());

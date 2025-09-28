@@ -13,7 +13,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // ✅ Create order from customer's cart
+    // Create order from customer's cart
     @PostMapping("/from-cart")
     public ResponseEntity<?> createOrderFromCart(@RequestParam Long customerId) {
         try {
@@ -28,14 +28,14 @@ public class OrderController {
         }
     }
 
-    // ✅ Get all orders
+    // Get all orders
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
-    // ✅ Get single order by ID
+    // Get single order by ID
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
         Order order = orderService.getOrderById(orderId);
@@ -47,7 +47,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    // ✅ Get orders by customer
+    // Get orders by customer
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<?> getOrdersByCustomer(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersByCustomer(customerId);

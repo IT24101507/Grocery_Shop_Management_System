@@ -13,14 +13,14 @@ public class GrocerySystemApplication {
         SpringApplication.run(GrocerySystemApplication.class, args);
     }
 
-    // ✅ Add this to allow React frontend to connect
+    
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173") // React app
+                        .allowedOrigins("http://localhost:3000") 
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowCredentials(true);
             }
