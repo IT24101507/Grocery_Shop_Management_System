@@ -55,9 +55,8 @@ public class UserController {
     @Autowired
     private EmailService emailService;
 
-
     @PostMapping("/login")
-   public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getGmail(), authenticationRequest.getPassword())
@@ -71,12 +70,21 @@ public class UserController {
 
         final User user = userRepo.findByGmail(authenticationRequest.getGmail()).orElseThrow(() -> new Exception("User not found"));
 
+        // Check if user is verified and enabled
+        if (!user.isVerified()) {
+            return ResponseEntity.status(403).body("Please verify your email address before logging in. Check your email for the verification link.");
+        }
+        
+        if (!user.isEnabled()) {
+            return ResponseEntity.status(403).body("Your account is disabled. Please contact support.");
+        }
+
         final String jwt = jwtUtil.generateToken(userDetails);
-        final String username = userDetails.getUsername();
-        final String role = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_CUSTOMER"); // Assuming a single role
+        final String userNickname = user.getUsername(); // Display name
+        final String gmail = user.getGmail();           // Email for functionality
+        final String role = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_CUSTOMER");
 
-
-        return ResponseEntity.ok(new LoginResponse(jwt, username, role, user.getPicture()));
+        return ResponseEntity.ok(new LoginResponse(userNickname, gmail, role, jwt, user.getPicture(), user.getFullName(), user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getPostalCode(), user.getTelephone()));
     }
     
     @PostMapping("/register")
@@ -112,28 +120,30 @@ public class UserController {
         System.out.println("Verification token saved.");
 
         System.out.println("Sending verification email...");
-        emailService.sendVerificationEmail(newUser, token);
-        System.out.println("Verification email sent.");
+        try {
+            emailService.sendVerificationEmail(newUser, token);
+            System.out.println("Verification email sent successfully.");
+        } catch (Exception e) {
+            System.err.println("Failed to send verification email: " + e.getMessage());
+            e.printStackTrace();
+            // Don't fail registration if email fails - user can still verify manually
+            return ResponseEntity.ok(newUser.getUsername() + " you registered successfully. Note: There was an issue sending the verification email. Please contact support for manual verification.");
+        }
 
         System.out.println("Returning 200 OK.");
-        return ResponseEntity.ok(newUser.getUsername() + " "  +  "you registered successfully. Please check your email for verification.");
+        return ResponseEntity.ok(newUser.getUsername() + " you registered successfully. Please check your email for verification.");
     }
-      @PostMapping("/google")
+     @PostMapping("/google")
 public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
     try {
-
         String url = "https://www.googleapis.com/oauth2/v3/userinfo";
 
-      
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(googleToken.getToken()); 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-    
         ResponseEntity<GoogleUserInfo> response = restTemplate.exchange(url, HttpMethod.GET, entity, GoogleUserInfo.class);
         GoogleUserInfo userInfo = response.getBody();
-        
-
 
         if (userInfo == null) {
             return ResponseEntity.status(400).body("Invalid Google token or unable to fetch user info");
@@ -141,16 +151,18 @@ public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
         
         System.out.println("--- Fetched from userinfo endpoint: " + userInfo.toString());
 
-
         Optional<User> existingUser = userRepo.findByGmail(userInfo.getEmail());
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
+
+            // Check if user is verified and enabled
             if (!user.isVerified()) {
-                user.setVerified(true);
+                return ResponseEntity.status(403).body("Please verify your email address before logging in. Check your email for the verification link.");
             }
+            
             if (!user.isEnabled()) {
-                user.setEnabled(true);
+                return ResponseEntity.status(403).body("Your account is disabled. Please contact support.");
             }
             
             user.setPicture(userInfo.getPicture());
@@ -158,10 +170,11 @@ public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
 
             final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getGmail());
             final String jwt = jwtUtil.generateToken(userDetails);
-            final String username = userDetails.getUsername();
+            final String userNickname = user.getUsername(); // Display name
+            final String gmail = user.getGmail();           // Email for functionality
             final String role = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_CUSTOMER");
 
-            return ResponseEntity.ok(new LoginResponse(jwt, username, role, user.getPicture()));
+            return ResponseEntity.ok(new LoginResponse(userNickname, gmail, role, jwt, user.getPicture(), user.getFullName(), user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getPostalCode(), user.getTelephone()));
 
         } else {
            return ResponseEntity.status(404).body("User not found. Please register first.");
@@ -191,5 +204,4 @@ public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
 
         return ResponseEntity.ok("User verified successfully");
 }
-
 }
