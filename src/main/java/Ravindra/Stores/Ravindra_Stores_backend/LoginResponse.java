@@ -1,8 +1,8 @@
 package Ravindra.Stores.Ravindra_Stores_backend;
 
 public class LoginResponse {
-    private String userNickname;  // For display
-    private String gmail;         // For functionality
+    private String userNickname;  
+    private String gmail;         
     private String role;
     private String jwt;
     private String picture;
@@ -27,7 +27,6 @@ public class LoginResponse {
         this.telephone = telephone;
     }
 
-    // Getters
     public String getUserNickname() {
         return userNickname;
     }
@@ -72,7 +71,7 @@ public class LoginResponse {
         return telephone;
     }
 
-    // Setters
+    
     public void setUserNickname(String userNickname) {
         this.userNickname = userNickname;
     }
