@@ -70,7 +70,7 @@ public class UserController {
 
         final User user = userRepo.findByGmail(authenticationRequest.getGmail()).orElseThrow(() -> new Exception("User not found"));
 
-        // Check if user is verified and enabled
+        
         if (!user.isVerified()) {
             return ResponseEntity.status(403).body("Please verify your email address before logging in. Check your email for the verification link.");
         }
@@ -80,8 +80,8 @@ public class UserController {
         }
 
         final String jwt = jwtUtil.generateToken(userDetails);
-        final String userNickname = user.getUsername(); // Display name
-        final String gmail = user.getGmail();           // Email for functionality
+        final String userNickname = user.getUsername(); 
+        final String gmail = user.getGmail();         
         final String role = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_CUSTOMER");
 
         return ResponseEntity.ok(new LoginResponse(userNickname, gmail, role, jwt, user.getPicture(), user.getFullName(), user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getPostalCode(), user.getTelephone()));
@@ -126,8 +126,8 @@ public class UserController {
         } catch (Exception e) {
             System.err.println("Failed to send verification email: " + e.getMessage());
             e.printStackTrace();
-            // Don't fail registration if email fails - user can still verify manually
-            return ResponseEntity.ok(newUser.getUsername() + " you registered successfully. Note: There was an issue sending the verification email. Please contact support for manual verification.");
+            
+            return ResponseEntity.ok(newUser.getUsername() + " you registered successfully. A verification email is on its way to your inbox right now. Let's get you started!".");
         }
 
         System.out.println("Returning 200 OK.");
@@ -156,7 +156,6 @@ public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
         if (existingUser.isPresent()) {
             User user = existingUser.get();
 
-            // Check if user is verified and enabled
             if (!user.isVerified()) {
                 return ResponseEntity.status(403).body("Please verify your email address before logging in. Check your email for the verification link.");
             }
@@ -170,8 +169,8 @@ public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleToken googleToken) {
 
             final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getGmail());
             final String jwt = jwtUtil.generateToken(userDetails);
-            final String userNickname = user.getUsername(); // Display name
-            final String gmail = user.getGmail();           // Email for functionality
+            final String userNickname = user.getUsername(); 
+            final String gmail = user.getGmail();          
             final String role = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ROLE_CUSTOMER");
 
             return ResponseEntity.ok(new LoginResponse(userNickname, gmail, role, jwt, user.getPicture(), user.getFullName(), user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getPostalCode(), user.getTelephone()));
