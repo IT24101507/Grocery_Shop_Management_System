@@ -19,13 +19,16 @@ public class User {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private long id;
-    private String fname;
     private String username;
     private String gmail;
     private String password;
     private String role;
     private String telephone;
-    private String Address;
+    private String fullName;
+    private String addressLine1;
+    private String addressLine2;
+    private String city;
+    private String postalCode;
     private boolean verified;
     private boolean enabled;
 
@@ -38,26 +41,21 @@ public class User {
 
     public User(){}
 
-    public User(String fname, String username, String gmail, String password, String role, String telephone, String Address){
-        this.fname = fname;
+    public User(String username, String gmail, String password, String role, String telephone, String fullName, String addressLine1, String addressLine2, String city, String postalCode){
         this.username = username;
         this.gmail = gmail;
         this.password = password;
         this.role = role;
         this.telephone = telephone;
-        this.Address =  Address;
+        this.fullName = fullName;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+        this.city = city;
+        this.postalCode = postalCode;
     }
 
     public long getId(){
         return id;
-    }
-
-    public String getFname(){
-        return fname;
-    }
-
-    public void setFname(String Fname){
-        this.fname = fname;
     }
 
     public String getUsername(){
@@ -100,12 +98,44 @@ public class User {
         this.telephone = telephone;
     }
 
-    public String getAddress(){
-        return Address;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setAddress(String Address){
-        this.Address = Address;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
     public boolean isVerified() {
@@ -144,12 +174,16 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", fname='" + fname + "'" +
                 ", username='" + username + "'" +
                 ", gmail='" + gmail + "'" +
                 ", password='" + password + "'" +
                 ", role='" + role + "'" +
                 ", telephone='" + telephone + "'" +
+                ", fullName='" + fullName + "'" +
+                ", addressLine1='" + addressLine1 + "'" +
+                ", addressLine2='" + addressLine2 + "'" +
+                ", city='" + city + "'" +
+                ", postalCode='" + postalCode + "'" +
                 ", picture='" + picture + "'" + 
                 ", verified=" + verified +
                 ", enabled=" + enabled +
