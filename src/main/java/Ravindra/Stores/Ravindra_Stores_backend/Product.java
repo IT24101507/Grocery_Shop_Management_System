@@ -30,7 +30,7 @@ public class Product {
     @Column(nullable = false, columnDefinition = "int default 0")
     private int discount = 0;  // default = 0 (percentage or flat)
 
-    // 🔹 Total stock (e.g., 50 packets, 20 bottles, 100 kg)
+    //Total stock 
     @NotNull(message = "Total stock quantity is required")
     @Min(value = 0, message = "Stock quantity cannot be negative")
     @Column(nullable = false)
@@ -160,5 +160,5 @@ public class Product {
 
 enum UnitType {
     KG, G, ML, L,
-    PACKET, BOTTLE, CAN
+    PACKET, BOTTLE, CAN,OTHER
 }
