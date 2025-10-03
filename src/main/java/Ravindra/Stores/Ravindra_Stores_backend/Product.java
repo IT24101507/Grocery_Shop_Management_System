@@ -19,6 +19,8 @@ public class Product {
     private BigDecimal price;
     private BigDecimal salePrice; // Can be null if not on sale
     private int stockQuantity;
+    private int displayQuantity; // Added to match database schema
+    private String category; // Added to match database schema
 
     // Manual getters and setters as fallback
     public Long getId() { return id; }
@@ -38,4 +40,10 @@ public class Product {
     
     public int getStockQuantity() { return stockQuantity; }
     public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
+    
+    public int getDisplayQuantity() { return displayQuantity; }
+    public void setDisplayQuantity(int displayQuantity) { this.displayQuantity = displayQuantity; }
+    
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

@@ -24,11 +24,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (productRepository.count() == 0) {
             List<Product> products = Arrays.asList(
-                createProduct(1L, "Fresh Carrots (500g)", "/images/carrots.jpg", new BigDecimal("600"), null, 100),
-                createProduct(2L, "Apple", "/images/red-apple.jpg", new BigDecimal("600"), new BigDecimal("500"), 50),
-                createProduct(3L, "Pineapple", "/images/pineapple.jpg", new BigDecimal("400"), null, 75),
-                createProduct(4L, "Pet Food", "/images/pet-food.jpg", new BigDecimal("550"), null, 40),
-                createProduct(5L, "Cheese", "/images/cheese.jpg", new BigDecimal("420"), null, 2)
+                createProduct(1L, "Fresh Carrots (500g)", "/images/carrots.jpg", new BigDecimal("600"), null, 100, 50, "Vegetables"),
+                createProduct(2L, "Apple", "/images/red-apple.jpg", new BigDecimal("600"), new BigDecimal("500"), 50, 25, "Fruits"),
+                createProduct(3L, "Pineapple", "/images/pineapple.jpg", new BigDecimal("400"), null, 75, 35, "Fruits"),
+                createProduct(4L, "Pet Food", "/images/pet-food.jpg", new BigDecimal("550"), null, 40, 20, "Pet Supplies"),
+                createProduct(5L, "Cheese", "/images/cheese.jpg", new BigDecimal("420"), null, 2, 1, "Dairy")
             );
             productRepository.saveAll(products);
             System.out.println("--- Mock products have been loaded into the database. ---");
@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private Product createProduct(Long id, String name, String imageUrl, BigDecimal price, BigDecimal salePrice, int stockQuantity) {
+    private Product createProduct(Long id, String name, String imageUrl, BigDecimal price, BigDecimal salePrice, int stockQuantity, int displayQuantity, String category) {
         Product product = new Product();
         product.setId(id);
         product.setName(name);
@@ -55,6 +55,8 @@ public class DataInitializer implements CommandLineRunner {
         product.setPrice(price);
         product.setSalePrice(salePrice);
         product.setStockQuantity(stockQuantity);
+        product.setDisplayQuantity(displayQuantity);
+        product.setCategory(category);
         return product;
     }
 
