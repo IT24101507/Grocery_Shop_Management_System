@@ -3,6 +3,7 @@ package com.ravindrastores.grocery_system;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,7 @@ public class OrderController {
         try {
             Order order = orderService.createOrderFromCart(customerId);
             return ResponseEntity.ok(order);
-
         } catch (RuntimeException e) {
-            // Cart empty or other runtime issues
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("error", e.getMessage()));
@@ -47,7 +46,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    // Get orders by customer
+    // Get orders by customer ID
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<?> getOrdersByCustomer(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersByCustomer(customerId);
