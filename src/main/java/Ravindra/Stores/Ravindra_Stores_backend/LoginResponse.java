@@ -1,8 +1,9 @@
 package Ravindra.Stores.Ravindra_Stores_backend;
 
 public class LoginResponse {
-    private String userNickname;  
-    private String gmail;         
+    private Long userId; 
+    private String userNickname;
+    private String gmail;
     private String role;
     private String jwt;
     private String picture;
@@ -13,7 +14,9 @@ public class LoginResponse {
     private String postalCode;
     private String telephone;
 
-    public LoginResponse(String userNickname, String gmail, String role, String jwt, String picture, String fullName, String addressLine1, String addressLine2, String city, String postalCode, String telephone) {
+    
+    public LoginResponse(Long userId, String userNickname, String gmail, String role, String jwt, String picture, String fullName, String addressLine1, String addressLine2, String city, String postalCode, String telephone) {
+        this.userId = userId; 
         this.userNickname = userNickname;
         this.gmail = gmail;
         this.role = role;
@@ -25,6 +28,15 @@ public class LoginResponse {
         this.city = city;
         this.postalCode = postalCode;
         this.telephone = telephone;
+    }
+
+    
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getUserNickname() {
@@ -71,7 +83,6 @@ public class LoginResponse {
         return telephone;
     }
 
-    
     public void setUserNickname(String userNickname) {
         this.userNickname = userNickname;
     }
