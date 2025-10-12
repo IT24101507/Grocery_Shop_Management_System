@@ -1,7 +1,8 @@
 package Ravindra.Stores.Ravindra_Stores_backend.dto;
 
-import lombok.Data;
 import java.math.BigDecimal;
+
+import lombok.Data;
 
 @Data
 public class CartItemDto {
@@ -11,8 +12,9 @@ public class CartItemDto {
     private int quantity;
     private BigDecimal priceEach; 
     private BigDecimal lineTotal;
+    private int stockQuantity; 
 
-    // Manual getters and setters as fallback
+    
     public Long getProductId() { return productId; }
     public void setProductId(Long productId) { this.productId = productId; }
     
