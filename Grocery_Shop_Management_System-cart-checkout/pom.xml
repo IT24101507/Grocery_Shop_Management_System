@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/> 
     </parent>
     <groupId>Ravindra.Stores</groupId>
     <artifactId>Ravindra_Stores-backend</artifactId>
@@ -105,16 +105,10 @@
     <build>
     <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
-            <!-- 
-            ================================================================
-            THIS IS THE NEW PLUGIN THAT FIXES THE COMPILATION ERRORS.
-            It explicitly tells Maven to use Lombok's annotation processor.
-            ================================================================
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- Using a modern version -->
+                <version>3.11.0</version> 
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
@@ -125,8 +119,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            
-            <!-- This is your existing Spring Boot plugin, which is correct -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
