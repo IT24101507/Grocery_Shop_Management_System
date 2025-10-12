@@ -138,13 +138,6 @@ public class UserController {
     }
 
 
-    /*
-     * UPDATED REGISTRATION LOGIC
-     * This now handles cases where a user tries to register with an email that already exists
-     * but is not yet verified. It cleans up the old, unverified account and its token
-     * before creating a new one, allowing the user to "re-register".
-     */
-
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<?> register(@RequestBody User newUser) {
@@ -155,14 +148,10 @@ public class UserController {
 
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-            // If the user is already verified, they cannot register again.
             if (existingUser.isVerified()) {
                 System.out.println("User is already verified. Returning 409.");
                 return ResponseEntity.status(409).body("This email address is already registered and verified.");
             } else {
-                // If the user exists but is not verified, cleaning up the old records
-                // to allow them to try registering again.
-
                 System.out.println("User exists but is not verified. Cleaning up old records.");
                 VerificationToken oldToken = tokenRepo.findByUser(existingUser);
                 if (oldToken != null) {
@@ -230,13 +219,7 @@ public class UserController {
         return ResponseEntity.ok("User verified successfully");
     }
 
-    /*
-     * UPDATED FORGOT PASSWORD LOGIC
-     * This method now uses the dedicated PasswordChangeTokenRepository.
-     * It enforces the one-token-per-user rule by deleting any pre-existing
-     * password reset token before creating and saving a new one.
-     */
-
+    
     @PostMapping("/forgot-password")
     @Transactional
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
@@ -248,19 +231,17 @@ public class UserController {
         
         User user = userOptional.get();
         
-        // ENFORCE ONE PASSWORD RESET TOKEN RULE
         PasswordChangeToken existingToken = passwordTokenRepo.findByUser(user);
         if (existingToken != null) {
             passwordTokenRepo.delete(existingToken);
             System.out.println("Deleted existing password reset token for user: " + user.getGmail());
         }
         
-        // Generate and save the NEW token using the correct entity
         String token = UUID.randomUUID().toString();
         PasswordChangeToken passwordResetToken = new PasswordChangeToken(token, user);
         passwordTokenRepo.save(passwordResetToken);
         
-        // Send the password reset email
+    
         try {
             emailService.sendPasswordResetEmail(user, token);
         } catch (Exception e) {
@@ -271,11 +252,6 @@ public class UserController {
         return ResponseEntity.ok("If the email address exists in our system, you will receive a password reset link.");
     }
     
-    /*
-     * UPDATED RESET PASSWORD LOGIC
-     * This method now uses the PasswordChangeTokenRepository to find and validate
-     * the reset token. It correctly cleans up the token after a successful password change.
-     */
 
     @PostMapping("/reset-password")
     @Transactional
@@ -288,7 +264,7 @@ public class UserController {
             return ResponseEntity.status(400).body("New password is required and must be at least 6 characters long");
         }
         
-        // USE THE CORRECT REPOSITORY to find the token
+        
         PasswordChangeToken passwordResetToken = passwordTokenRepo.findByToken(request.getToken());
         
         if (passwordResetToken == null) {
@@ -297,17 +273,17 @@ public class UserController {
         
         Calendar cal = Calendar.getInstance();
         if ((passwordResetToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            passwordTokenRepo.delete(passwordResetToken); // Clean up expired token
+            passwordTokenRepo.delete(passwordResetToken); 
             return ResponseEntity.status(400).body("Reset token has expired. Please request a new password reset.");
         }
         
         User user = passwordResetToken.getUser();
         
-        // Update user's password
+        
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepo.save(user);
         
-        // Delete the used token to prevent reuse
+        
         passwordTokenRepo.delete(passwordResetToken);
         
         System.out.println("Password reset successful for user: " + user.getGmail());
@@ -316,7 +292,6 @@ public class UserController {
     }
 }
 
-// Helper Request classes
 class ForgotPasswordRequest {
     private String email;
     public String getEmail() { return email; }
