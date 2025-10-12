@@ -49,10 +49,10 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
-    @NotNull(message = "Price cannot be null")
-    @Min(value = 0, message = "Price cannot be negative")
+    @NotNull(message = "Original price cannot be null")
+    @Min(value = 0, message = "Original price cannot be negative")
     @Column(nullable = false)
-    private BigDecimal price;
+    private BigDecimal originalPrice;
 
     @Min(value = 0, message = "Sale price cannot be negative")
     private BigDecimal salePrice;
@@ -88,5 +88,11 @@ public class Product {
 
     @Lob
     @Column(name = "image_data", columnDefinition = "LONGBLOB")
-    private byte[] imageData;
+    private byte[]imageData;
+
+    @Column(name = "custom_stock_unit")
+    private String customStockUnit;
+
+    @Column(name = "custom_display_unit")
+    private String customDisplayUnit;
 }
