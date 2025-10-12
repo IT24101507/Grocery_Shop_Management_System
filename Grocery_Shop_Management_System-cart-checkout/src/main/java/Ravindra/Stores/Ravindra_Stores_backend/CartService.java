@@ -1,13 +1,15 @@
 package Ravindra.Stores.Ravindra_Stores_backend;
 
-import Ravindra.Stores.Ravindra_Stores_backend.dto.CartDto;
-import Ravindra.Stores.Ravindra_Stores_backend.dto.CartItemDto;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ravindra.Stores.Ravindra_Stores_backend.dto.CartDto;
+import Ravindra.Stores.Ravindra_Stores_backend.dto.CartItemDto;
 
 @Service
 @Transactional
@@ -44,9 +46,9 @@ public class CartService {
             CartItem cartItem = existingItem.get();
             int newQuantity = cartItem.getQuantity() + quantity;
             
-            // 4. Check for sufficient stock
-            if (product.getStockQuantity() < newQuantity) {
-                throw new RuntimeException("Not enough stock for " + product.getName() + ". Available: " + product.getStockQuantity());
+            // 4. Check for sufficient stock, keeping 1 item reserved
+            if (product.getStockQuantity() - 1 < newQuantity) {
+                throw new RuntimeException("Not enough stock for " + product.getName() + ". Available: " + (product.getStockQuantity() - 1));
             }
             
             cartItem.setQuantity(newQuantity);
@@ -63,7 +65,7 @@ public class CartService {
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             // Store the current price (sale price takes priority)
-            BigDecimal priceAtTime = product.getSalePrice() != null ? product.getSalePrice() : product.getPrice();
+            BigDecimal priceAtTime = product.getSalePrice() != null ? product.getSalePrice() : product.getOriginalPrice();
             cartItem.setPriceAtTime(priceAtTime);
             
             cartItemRepository.save(cartItem);
@@ -100,12 +102,13 @@ public class CartService {
             itemDto.setQuantity(cartItem.getQuantity());
             
             // Use the current product price (sale price takes priority)
-            BigDecimal currentPrice = product.getSalePrice() != null ? product.getSalePrice() : product.getPrice();
+            BigDecimal currentPrice = product.getSalePrice() != null ? product.getSalePrice() : product.getOriginalPrice();
             itemDto.setPriceEach(currentPrice);
 
             // Calculate line total
             BigDecimal lineTotal = currentPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             itemDto.setLineTotal(lineTotal);
+            itemDto.setStockQuantity(product.getStockQuantity()); // Set stock quantity
             grandTotal = grandTotal.add(lineTotal);
 
             detailedItems.add(itemDto);
@@ -144,9 +147,9 @@ public class CartService {
             return;
         }
         
-        // Check stock availability
-        if (product.getStockQuantity() < quantity) {
-            throw new RuntimeException("Not enough stock for " + product.getName() + ". Available: " + product.getStockQuantity());
+        // Check stock availability, keeping 1 item reserved
+        if (product.getStockQuantity() - 1 < quantity) {
+            throw new RuntimeException("Not enough stock for " + product.getName() + ". Available: " + (product.getStockQuantity() - 1));
         }
         
         CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
