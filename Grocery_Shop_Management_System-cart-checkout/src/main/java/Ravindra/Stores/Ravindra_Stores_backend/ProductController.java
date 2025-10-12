@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -29,20 +30,9 @@ public class ProductController {
 
     private final ProductRepository productRepository;
 
-    // Using constructor injection is a best practice
     @Autowired
     public ProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
-    }
-
-    // Utility method to safely parse and validate the UnitType enum
-    private Product.UnitType validateUnit(String unit, String fieldName) {
-        try {
-            // Assuming UnitType is a nested enum within Product
-            return Product.UnitType.valueOf(unit.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid " + fieldName + ". Allowed values are: KG, G, ML, L, PACKET, BOTTLE, CAN, OTHER");
-        }
     }
 
     /**
@@ -52,13 +42,15 @@ public class ProductController {
     public ResponseEntity<?> createProduct(
             @RequestParam String name,
             @RequestParam String category,
-            @RequestParam BigDecimal price,
+            @RequestParam BigDecimal originalPrice,
             @RequestParam(required = false) BigDecimal salePrice,
             @RequestParam(defaultValue = "0") int discount,
             @RequestParam int stockQuantity,
             @RequestParam String stockUnit,
+            @RequestParam(required = false) String customStockUnit, // New field for custom stock unit
             @RequestParam int displayQuantity,
             @RequestParam String displayUnit,
+            @RequestParam(required = false) String customDisplayUnit, // New field for custom display unit
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String imageUrl,
             @RequestParam(required = false) MultipartFile imageFile
@@ -67,17 +59,38 @@ public class ProductController {
             Product product = new Product();
             product.setName(name);
             product.setCategory(category);
-            product.setPrice(price);
-            product.setSalePrice(salePrice);
+            product.setOriginalPrice(originalPrice);
+
+            // Calculate sale price based on discount
+            if (discount > 0) {
+                BigDecimal discountMultiplier = BigDecimal.valueOf(100 - discount).divide(BigDecimal.valueOf(100));
+                BigDecimal calculatedSalePrice = originalPrice.multiply(discountMultiplier);
+                product.setSalePrice(calculatedSalePrice);
+            } else {
+                product.setSalePrice(originalPrice);
+            }
+
             product.setDiscount(discount);
             product.setStockQuantity(stockQuantity);
             product.setDisplayQuantity(displayQuantity);
             product.setDescription(description);
             product.setImageUrl(imageUrl);
 
-            // Validate and set units
-            product.setStockUnit(validateUnit(stockUnit, "stockUnit"));
-            product.setDisplayUnit(validateUnit(displayUnit, "displayUnit"));
+            // Handle stock unit
+            if (Product.UnitType.OTHER.name().equalsIgnoreCase(stockUnit)) {
+                product.setStockUnit(Product.UnitType.OTHER);
+                product.setCustomStockUnit(customStockUnit); // Set the custom unit
+            } else {
+                product.setStockUnit(Product.UnitType.valueOf(stockUnit.toUpperCase()));
+            }
+
+            // Handle display unit
+            if (Product.UnitType.OTHER.name().equalsIgnoreCase(displayUnit)) {
+                product.setDisplayUnit(Product.UnitType.OTHER);
+                product.setCustomDisplayUnit(customDisplayUnit); // Set the custom unit
+            } else {
+                product.setDisplayUnit(Product.UnitType.valueOf(displayUnit.toUpperCase()));
+            }
 
             // Handle image data from uploaded file
             if (imageFile != null && !imageFile.isEmpty()) {
@@ -88,20 +101,28 @@ public class ProductController {
             return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
 
         } catch (IllegalArgumentException e) {
-            // Catches unit validation errors
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Catches enum validation errors
+            return ResponseEntity.badRequest().body("Invalid unit type provided.");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing image file: " + e.getMessage());
         }
     }
 
     /**
-     * READ all products (kept from your original controller).
-     * Now returns ResponseEntity for consistency.
+     * READ all products.
      */
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+    public ResponseEntity<List<Product>> getAllProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Integer minDiscount,
+            @RequestParam(required = false) Integer maxDiscount
+    ) {
+        Specification<Product> spec = Specification.where(ProductSpecification.hasCategory(category))
+                .and(ProductSpecification.priceBetween(minPrice, maxPrice))
+                .and(ProductSpecification.discountBetween(minDiscount, maxDiscount));
+        List<Product> products = productRepository.findAll(spec);
         return ResponseEntity.ok(products);
     }
 
@@ -125,7 +146,6 @@ public class ProductController {
         if (productOptional.isPresent() && productOptional.get().getImageData() != null) {
             Product product = productOptional.get();
             HttpHeaders headers = new HttpHeaders();
-            // You can enhance this to determine the content type dynamically if stored
             headers.setContentType(MediaType.IMAGE_JPEG);
             return new ResponseEntity<>(product.getImageData(), headers, HttpStatus.OK);
         }
@@ -147,13 +167,15 @@ public class ProductController {
             @PathVariable Long id,
             @RequestParam String name,
             @RequestParam String category,
-            @RequestParam BigDecimal price,
+            @RequestParam BigDecimal originalPrice,
             @RequestParam(required = false) BigDecimal salePrice,
             @RequestParam(defaultValue = "0") int discount,
             @RequestParam int stockQuantity,
             @RequestParam String stockUnit,
+            @RequestParam(required = false) String customStockUnit, 
             @RequestParam int displayQuantity,
             @RequestParam String displayUnit,
+            @RequestParam(required = false) String customDisplayUnit, 
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String imageUrl,
             @RequestParam(required = false) MultipartFile imageFile
@@ -167,19 +189,40 @@ public class ProductController {
             Product productToUpdate = existingProductOptional.get();
             productToUpdate.setName(name);
             productToUpdate.setCategory(category);
-            productToUpdate.setPrice(price);
-            productToUpdate.setSalePrice(salePrice);
+            productToUpdate.setOriginalPrice(originalPrice);
+
+            if (discount > 0) {
+                BigDecimal discountMultiplier = BigDecimal.valueOf(100 - discount).divide(BigDecimal.valueOf(100));
+                BigDecimal calculatedSalePrice = originalPrice.multiply(discountMultiplier);
+                productToUpdate.setSalePrice(calculatedSalePrice);
+            } else {
+                productToUpdate.setSalePrice(originalPrice);
+            }
+
             productToUpdate.setDiscount(discount);
             productToUpdate.setStockQuantity(stockQuantity);
             productToUpdate.setDisplayQuantity(displayQuantity);
             productToUpdate.setDescription(description);
             productToUpdate.setImageUrl(imageUrl);
 
-            // Validate and set units
-            productToUpdate.setStockUnit(validateUnit(stockUnit, "stockUnit"));
-            productToUpdate.setDisplayUnit(validateUnit(displayUnit, "displayUnit"));
+            // Handle stock unit
+            if (Product.UnitType.OTHER.name().equalsIgnoreCase(stockUnit)) {
+                productToUpdate.setStockUnit(Product.UnitType.OTHER);
+                productToUpdate.setCustomStockUnit(customStockUnit);
+            } else {
+                productToUpdate.setStockUnit(Product.UnitType.valueOf(stockUnit.toUpperCase()));
+                productToUpdate.setCustomStockUnit(null); // Clear custom unit if not "OTHER"
+            }
 
-            // If a new image file is provided, update the image data
+            // Handle display unit
+            if (Product.UnitType.OTHER.name().equalsIgnoreCase(displayUnit)) {
+                productToUpdate.setDisplayUnit(Product.UnitType.OTHER);
+                productToUpdate.setCustomDisplayUnit(customDisplayUnit);
+            } else {
+                productToUpdate.setDisplayUnit(Product.UnitType.valueOf(displayUnit.toUpperCase()));
+                productToUpdate.setCustomDisplayUnit(null); // Clear custom unit if not "OTHER"
+            }
+
             if (imageFile != null && !imageFile.isEmpty()) {
                 productToUpdate.setImageData(imageFile.getBytes());
             }
@@ -188,7 +231,7 @@ public class ProductController {
             return ResponseEntity.ok(updatedProduct);
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid unit type provided.");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing image file: " + e.getMessage());
         }
@@ -207,4 +250,3 @@ public class ProductController {
         return ResponseEntity.ok("Product with id " + id + " was deleted successfully.");
     }
 }
-
