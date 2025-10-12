@@ -33,4 +33,7 @@ build/
 .vscode/
 
 # Environment variables
-.env
+.gitignore
+
+# Local application properties
+application-local.properties
