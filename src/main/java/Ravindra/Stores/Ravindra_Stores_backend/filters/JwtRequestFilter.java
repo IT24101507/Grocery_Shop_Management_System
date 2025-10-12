@@ -1,13 +1,9 @@
 package Ravindra.Stores.Ravindra_Stores_backend.filters;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import Ravindra.Stores.Ravindra_Stores_backend.services.MyUserDetailsService;
 import Ravindra.Stores.Ravindra_Stores_backend.util.JwtUtil;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,24 +41,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            //custom MyUserDetails object which includes the user ID
             UserDetails userDetails = this.myUserDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
-                
-                // 1. Extract all claims from the token
-                Claims claims = jwtUtil.extractAllClaims(jwt);
-                // 2. Get the roles claim, which is a List of Strings
-                List<String> roles = claims.get("roles", List.class);
-                // 3. Convert the list of role strings into a list of GrantedAuthority objects
-                List<GrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-                // 4. Create the authentication token, passing the authorities
+            
+                // create the token using the authorities from the UserDetails object itself,
+                // not by re-parsing the token.
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, authorities); // Use the authorities from the token
+                        userDetails, null, userDetails.getAuthorities());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                
+                // By setting authentication token, the 'principal' becomes  MyUserDetails object.
+                // makes 'principal.id' available to  @PreAuthorize annotations.
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
