@@ -1,67 +1,31 @@
 package Ravindra.Stores.Ravindra_Stores_backend.services;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import Ravindra.Stores.Ravindra_Stores_backend.User;
+import Ravindra.Stores.Ravindra_Stores_backend.UserRepository;
 
-public class MyUserDetails implements UserDetails {
+@Service
+public class MyUserDetailsService implements UserDetailsService {
 
-    private final String username; 
-    private final String password;
-    private final boolean enabled;
-    private final Collection<? extends GrantedAuthority> authorities;
-    private final Long id; 
-
-    public MyUserDetails(User user) {
-        this.username = user.getGmail();
-        this.password = user.getPassword() != null ? user.getPassword() : "";
-        this.enabled = user.isEnabled() && user.isVerified();
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
-        this.id = user.getId(); 
-    }
-
-    
-    public Long getId() {
-        return id;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
+    public UserDetails loadUserByUsername(String gmail) throws UsernameNotFoundException {
+        User user = userRepository.findByGmail(gmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with gmail: " + gmail));
+        
+        if (!user.isEnabled() || !user.isVerified()) {
+            
+            throw new UsernameNotFoundException("User account is not active or verified.");
+        }
+        
+        
+        return new MyUserDetails(user);
     }
 }
