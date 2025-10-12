@@ -1,6 +1,6 @@
 package Ravindra.Stores.Ravindra_Stores_backend.util;
 
-import java.util.Date;
+import java.util.Date; // <-- IMPORT THE NEW CLASS
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import Ravindra.Stores.Ravindra_Stores_backend.services.MyUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,7 +36,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    public Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
@@ -45,15 +46,20 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        
-  
-        // Get the authorities (roles) from the UserDetails object and add them to the token
+
+
         List<String> roles = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         claims.put("roles", roles);
 
+        
+        if (userDetails instanceof MyUserDetails) {
+            MyUserDetails myUserDetails = (MyUserDetails) userDetails;
+            claims.put("userId", myUserDetails.getId()); 
+        }
+        
         return createToken(claims, userDetails.getUsername());
     }
 
@@ -62,7 +68,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) 
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
