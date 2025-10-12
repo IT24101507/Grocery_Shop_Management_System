@@ -39,8 +39,6 @@ public class LoginResponse {
         this.userId = userId;
     }
 
-    
-
     public String getUserNickname() {
         return userNickname;
     }
