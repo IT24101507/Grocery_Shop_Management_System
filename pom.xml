@@ -100,41 +100,25 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-    </dependencies>
+	</dependencies>
 
-    <build>
-    <sourceDirectory>src/main/java</sourceDirectory>
-        <plugins>
-            <!-- 
-            ================================================================
-            THIS IS THE NEW PLUGIN THAT FIXES THE COMPILATION ERRORS.
-            It explicitly tells Maven to use Lombok's annotation processor.
-            ================================================================
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <!-- Using a modern version -->
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-            
-            <!-- This is your existing Spring Boot plugin, which is correct -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>Ravindra.Stores.Ravindra_Stores_backend.RavindraStoresBackendApplication</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+	<sourceDirectory>src/main/java</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>Ravindra.Stores.Ravindra_Stores_backend.RavindraStoresBackendApplication</mainClass>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
