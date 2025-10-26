@@ -13,8 +13,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Product {
     @Id
-    private Long id;
-    private String name;
+    private Long proid;
+
+    private String proname;
     private String imageUrl;
     private BigDecimal price;
     private BigDecimal salePrice; // Can be null if not on sale
@@ -23,11 +24,11 @@ public class Product {
     private String category; // Added to match database schema
 
     // Manual getters and setters as fallback
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getProId() { return proid; }
+    public void setId(Long proid) { this.proid = proid; }
+    public String getProName() { return proname; }
+    public void setName(String proname) { this.proname = proname; }
     
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
     
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
