@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Product {
     @Id
-    private Long proid;
+    private Long id;
 
     private String proname;
     private String imageUrl;
@@ -24,8 +24,8 @@ public class Product {
     private String category; // Added to match database schema
 
     // Manual getters and setters as fallback
-    public Long getProId() { return proid; }
-    public void setId(Long proid) { this.proid = proid; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getProName() { return proname; }
     public void setName(String proname) { this.proname = proname; }
     
