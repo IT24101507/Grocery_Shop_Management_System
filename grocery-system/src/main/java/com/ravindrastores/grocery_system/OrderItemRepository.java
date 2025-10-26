@@ -1,7 +1,6 @@
-package com.ravindrastores.grocery_system;
+package Ravindra.Stores.Ravindra_Stores_backend;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.ravindrastores.grocery_system.OrderItem;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {}
 
