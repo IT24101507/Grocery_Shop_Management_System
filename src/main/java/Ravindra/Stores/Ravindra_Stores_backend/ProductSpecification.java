@@ -29,18 +29,18 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> discountBetween(Integer minDiscount, Integer maxDiscount) {
+    public static Specification<Product> discountBetween(Integer minimumDiscount, Integer maximumDiscount) {
         return (root, query, criteriaBuilder) -> {
-            if (minDiscount == null && maxDiscount == null) {
+            if (minimumDiscount == null && maximumDiscount == null) {
                 return criteriaBuilder.conjunction();
             }
-            if (minDiscount == null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get("discount"), maxDiscount);
+            if (minimumDiscount == null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("discount"), maximumDiscount);
             }
-            if (maxDiscount == null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("discount"), minDiscount);
+            if (maximumDiscount == null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("discount"), minimumDiscount);
             }
-            return criteriaBuilder.between(root.get("discount"), minDiscount, maxDiscount);
+            return criteriaBuilder.between(root.get("discount"), minimumDiscount, maximumDiscount);
         };
     }
 }
