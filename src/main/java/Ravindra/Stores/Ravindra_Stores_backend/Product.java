@@ -15,7 +15,7 @@ public class Product {
     @Id
     private Long id;
 
-    private String proname;
+    private String name;
     private String imageUrl;
     private BigDecimal price;
     private BigDecimal salePrice; // Can be null if not on sale
@@ -26,8 +26,8 @@ public class Product {
     // Manual getters and setters as fallback
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getProName() { return proname; }
-    public void setName(String proname) { this.proname = proname; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     
     
     public String getImageUrl() { return imageUrl; }
