@@ -4,27 +4,17 @@ import java.util.Calendar;
 import java.util.Date;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
 
 @Entity
-public class VerificationToken {
+public class PasswordChangeToken {
     private static final int EXPIRATION = 60 * 24;
-
-    public enum TokenType {
-        EMAIL_VERIFICATION,
-        PASSWORD_RESET
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,32 +22,21 @@ public class VerificationToken {
 
     private String token;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(nullable = false, name = "user_id", foreignKey = @ForeignKey(name = "FK_USER_PASS_TOKEN"))
     private User user;
 
     private Date expiryDate;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TokenType tokenType = TokenType.EMAIL_VERIFICATION; // Default value
 
-    public VerificationToken() {
+    public PasswordChangeToken() {
         super();
     }
 
-    public VerificationToken(final String token, final User user, final TokenType tokenType) {
+    public PasswordChangeToken(final String token, final User user) {
         super();
-
         this.token = token;
         this.user = user;
-        this.tokenType = tokenType;
         this.expiryDate = calculateExpiryDate(EXPIRATION);
-    }
-    
-    // Backward compatibility constructor for email verification
-    public VerificationToken(final String token, final User user) {
-        this(token, user, TokenType.EMAIL_VERIFICATION);
     }
 
     private Date calculateExpiryDate(int expiryTimeInMinutes) {
@@ -81,9 +60,5 @@ public class VerificationToken {
 
     public Date getExpiryDate() {
         return expiryDate;
-    }
-    
-    public TokenType getTokenType() {
-        return tokenType;
     }
 }
