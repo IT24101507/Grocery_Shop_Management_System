@@ -14,18 +14,18 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> priceBetween(BigDecimal minimumPrice, BigDecimal maximumPrice) {
+    public static Specification<Product> priceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
         return (root, query, criteriaBuilder) -> {
-            if (minimumPrice == null && maximumPrice == null) {
+            if (minPrice == null && maxPrice == null) {
                 return criteriaBuilder.conjunction();
             }
-            if (minimumPrice == null) {
-                return criteriaBuilder.lessThanOrEqualTo(root.get("salePrice"), maximumPrice);
+            if (minPrice == null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("salePrice"), maxPrice);
             }
-            if (maximumPrice == null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("salePrice"), minimumPrice);
+            if (maxPrice == null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("salePrice"), minPrice);
             }
-            return criteriaBuilder.between(root.get("salePrice"), minimumPrice, maximumPrice);
+            return criteriaBuilder.between(root.get("salePrice"), minPrice, maxPrice);
         };
     }
 
