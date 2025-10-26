@@ -1,8 +1,10 @@
-package com.ravindrastores.grocery_system;
+package Ravindra.Stores.Ravindra_Stores_backend;
+
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCustomerId(Long customerId);
+    List<Order> findByTransferSlipPathIsNotNull();
 }
